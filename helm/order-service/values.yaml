@@ -1,0 +1,80 @@
+# Default values — override per environment in values-{env}.yaml
+
+replicaCount: 2
+
+image:
+  repository: registry.example.com/order-service
+  pullPolicy: IfNotPresent
+  tag: ""  # Defaults to .Chart.appVersion
+
+service:
+  type: ClusterIP
+  port: 8081
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 60
+
+# Probes — tuned for Spring Boot startup time
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8081
+  initialDelaySeconds: 25
+  periodSeconds: 10
+  failureThreshold: 3
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8081
+  initialDelaySeconds: 45
+  periodSeconds: 15
+  failureThreshold: 3
+
+# Pod disruption budget — always keep at least 1 pod up during rolling update
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+env:
+  APP_ENV: production
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: orders
+  KAFKA_BOOTSTRAP: kafka:9092
+  REDIS_HOST: redis
+  EUREKA_HOST: eureka
+
+secrets:
+  DB_USER: ""       # Set via --set or external secrets operator
+  DB_PASSWORD: ""
+  JWT_SECRET: ""
+
+# Prometheus scraping annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/actuator/prometheus"
+  prometheus.io/port: "8081"
+
+postgresql:
+  enabled: false  # Use external managed DB in production
+
+ingress:
+  enabled: false
+  className: nginx
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /api/orders
+          pathType: Prefix

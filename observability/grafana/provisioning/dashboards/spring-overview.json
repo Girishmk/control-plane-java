@@ -1,0 +1,144 @@
+{
+  "title": "Spring Boot Services — Control Plane",
+  "uid": "control-plane-overview",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(up{job=\"spring-services\"}, service)",
+        "multi": true,
+        "includeAll": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Service availability",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "avg(up{job=\"spring-services\", service=~\"$service\"}) * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "thresholds": {
+          "steps": [
+            { "color": "red",   "value": 0   },
+            { "color": "yellow","value": 90  },
+            { "color": "green", "value": 99  }
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "HTTP request rate (req/s)",
+      "type": "timeseries",
+      "gridPos": { "x": 6, "y": 0, "w": 9, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$service\"}[2m])) by (service)",
+          "legendFormat": "{{service}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "HTTP error rate (5xx %)",
+      "type": "timeseries",
+      "gridPos": { "x": 15, "y": 0, "w": 9, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\",service=~\"$service\"}[2m])) by (service) / sum(rate(http_server_requests_seconds_count{service=~\"$service\"}[2m])) by (service) * 100",
+          "legendFormat": "{{service}} error %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              { "color": "green",  "value": 0 },
+              { "color": "yellow", "value": 1 },
+              { "color": "red",    "value": 5 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "P50 / P95 / P99 latency",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{service=~\"$service\"}[2m])) by (service, le))",
+          "legendFormat": "{{service}} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{service=~\"$service\"}[2m])) by (service, le))",
+          "legendFormat": "{{service}} p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{service=~\"$service\"}[2m])) by (service, le))",
+          "legendFormat": "{{service}} p99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 5,
+      "title": "JVM heap usage",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\",service=~\"$service\"}) by (service)",
+          "legendFormat": "{{service}} used"
+        },
+        {
+          "expr": "sum(jvm_memory_max_bytes{area=\"heap\",service=~\"$service\"}) by (service)",
+          "legendFormat": "{{service}} max"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "id": 6,
+      "title": "Orders created / min",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(orders_created_total[1m])) * 60",
+          "legendFormat": "Orders/min"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Circuit breaker states",
+      "type": "table",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_state",
+          "legendFormat": "{{name}} — {{state}}",
+          "instant": true
+        }
+      ]
+    }
+  ]
+}

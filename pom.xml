@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.controlplane</groupId>
+    <artifactId>control-plane-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Control Plane Java - Parent</name>
+
+    <modules>
+        <module>config-server</module>
+        <module>eureka-server</module>
+        <module>api-gateway</module>
+        <module>order-service</module>
+    </modules>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.3</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <java.version>17</java.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <resilience4j.version>2.2.0</resilience4j.version>
+        <micrometer.version>1.12.3</micrometer.version>
+        <opentelemetry.version>1.34.1</opentelemetry.version>
+        <testcontainers.version>1.19.6</testcontainers.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <image>
+                            <name>registry.example.com/${project.artifactId}:${project.version}</name>
+                        </image>
+                        <layers><enabled>true</enabled></layers>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>3.4.2</version>
+                    <configuration>
+                        <from><image>eclipse-temurin:17-jre-alpine</image></from>
+                        <to>
+                            <image>registry.example.com/${project.artifactId}</image>
+                            <tags><tag>${project.version}</tag><tag>latest</tag></tags>
+                        </to>
+                        <container>
+                            <jvmFlags>
+                                <jvmFlag>-XX:+UseContainerSupport</jvmFlag>
+                                <jvmFlag>-XX:MaxRAMPercentage=75.0</jvmFlag>
+                                <jvmFlag>-XX:+ExitOnOutOfMemoryError</jvmFlag>
+                            </jvmFlags>
+                        </container>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

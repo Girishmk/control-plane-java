@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: order-service
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/org/k8s-manifests
+    targetRevision: HEAD
+    path: helm/order-service
+    helm:
+      valueFiles:
+        - values-production.yaml
+      parameters:
+        - name: image.tag
+          value: "$ARGOCD_APP_REVISION"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+
+  syncPolicy:
+    automated:
+      prune: true       # Delete resources removed from Git
+      selfHeal: true    # Re-sync if cluster state drifts
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas   # Managed by HPA — ignore drift
