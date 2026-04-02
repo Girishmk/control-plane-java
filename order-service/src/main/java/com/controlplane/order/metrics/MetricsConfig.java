@@ -8,8 +8,6 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.config.MeterFilter;
-import io.micrometer.registry.otlp.OtlpConfig;
-import io.micrometer.registry.otlp.OtlpMeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;

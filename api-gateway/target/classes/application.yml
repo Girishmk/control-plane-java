@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    config:
+      uri: http://config-server:8888
+      fail-fast: true
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+jwt:
+  secret: ${JWT_SECRET:dev-secret-change-in-prod}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      orderCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+      userCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

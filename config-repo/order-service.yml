@@ -1,0 +1,3 @@
+app:
+  env: local
+  version: 1.0.0-SNAPSHOT

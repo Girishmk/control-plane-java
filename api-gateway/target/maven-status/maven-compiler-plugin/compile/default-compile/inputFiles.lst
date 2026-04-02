@@ -1,0 +1,3 @@
+/Users/Home/git_repo/control-plane-java/api-gateway/src/main/java/com/controlplane/gateway/ApiGatewayApplication.java
+/Users/Home/git_repo/control-plane-java/api-gateway/src/main/java/com/controlplane/gateway/filter/JwtAuthFilter.java
+/Users/Home/git_repo/control-plane-java/api-gateway/src/main/java/com/controlplane/gateway/config/GatewayConfig.java

@@ -2,6 +2,7 @@ package com.controlplane.gateway.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -45,11 +46,11 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(BEARER_PREFIX.length());
 
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret.getBytes())
+            Claims claims = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
 
             ServerWebExchange mutated = exchange.mutate()
                     .request(r -> r

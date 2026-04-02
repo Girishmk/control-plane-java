@@ -1,0 +1,3 @@
+com/controlplane/gateway/ApiGatewayApplication.class
+com/controlplane/gateway/config/GatewayConfig.class
+com/controlplane/gateway/filter/JwtAuthFilter.class

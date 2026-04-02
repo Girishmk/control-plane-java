@@ -3,7 +3,6 @@ FROM eclipse-temurin:17-jdk-jammy AS builder
 
 WORKDIR /build
 
-# Cache Maven dependencies first (layer caching)
 COPY pom.xml .
 COPY config-server/pom.xml     config-server/pom.xml
 COPY eureka-server/pom.xml     eureka-server/pom.xml
@@ -13,36 +12,28 @@ COPY order-service/pom.xml     order-service/pom.xml
 RUN apt-get update && apt-get install -y --no-install-recommends maven && rm -rf /var/lib/apt/lists/*
 RUN mvn dependency:go-offline -B -q
 
-# Copy source and build
 COPY . .
-RUN mvn package -pl order-service -am -Dmaven.test.skip=true -B -q
+RUN mvn package -pl api-gateway -am -DskipTests -B -q
 
-# Extract Spring Boot layered JAR
-WORKDIR /build/order-service/target
-RUN java -Djarmode=layertools -jar order-service-*.jar extract
+WORKDIR /build/api-gateway/target
+RUN java -Djarmode=layertools -jar api-gateway-*.jar extract
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-jammy AS runtime
 
-# Create non-root user
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
-# Copy layered JAR contents — least → most frequently changed
-COPY --from=builder --chown=appuser:appgroup /build/order-service/target/dependencies/          ./
-COPY --from=builder --chown=appuser:appgroup /build/order-service/target/spring-boot-loader/   ./
-COPY --from=builder --chown=appuser:appgroup /build/order-service/target/snapshot-dependencies/ ./
-COPY --from=builder --chown=appuser:appgroup /build/order-service/target/application/          ./
+COPY --from=builder --chown=appuser:appgroup /build/api-gateway/target/dependencies/          ./
+COPY --from=builder --chown=appuser:appgroup /build/api-gateway/target/spring-boot-loader/   ./
+COPY --from=builder --chown=appuser:appgroup /build/api-gateway/target/snapshot-dependencies/ ./
+COPY --from=builder --chown=appuser:appgroup /build/api-gateway/target/application/          ./
 
 USER appuser
 
-EXPOSE 8081
+EXPOSE 8080
 
-# JVM flags:
-#   UseContainerSupport   → respect cgroup memory limits
-#   MaxRAMPercentage      → use 75% of container memory for heap
-#   ExitOnOutOfMemoryError → crash fast so k8s can restart
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
                -XX:MaxRAMPercentage=75.0 \
                -XX:+ExitOnOutOfMemoryError \
@@ -52,4 +43,4 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport \
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8081/actuator/health || exit 1
+    CMD curl -f http://localhost:8080/actuator/health || exit 1

@@ -1,0 +1,12 @@
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/controller/OrderController.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/OrderServiceApplication.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/service/OrderService.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/domain/OrderItem.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/metrics/MetricsConfig.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/kafka/OrderEventConsumer.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/kafka/OrderEvent.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/kafka/OrderEventProducer.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/domain/Order.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/repository/OrderRepository.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/controller/GlobalExceptionHandler.java
+/Users/Home/git_repo/control-plane-java/order-service/src/main/java/com/controlplane/order/domain/OrderStatus.java
