@@ -1,0 +1,15 @@
+com/controlplane/order/domain/OrderItem$OrderItemBuilder.class
+com/controlplane/order/controller/GlobalExceptionHandler.class
+com/controlplane/order/domain/OrderItem.class
+com/controlplane/order/controller/OrderController.class
+com/controlplane/order/kafka/OrderEventConsumer.class
+com/controlplane/order/domain/Order$OrderBuilder.class
+com/controlplane/order/repository/OrderRepository.class
+com/controlplane/order/kafka/OrderEventProducer.class
+com/controlplane/order/kafka/OrderEvent$OrderEventBuilder.class
+com/controlplane/order/domain/Order.class
+com/controlplane/order/OrderServiceApplication.class
+com/controlplane/order/kafka/OrderEvent.class
+com/controlplane/order/metrics/MetricsConfig.class
+com/controlplane/order/domain/OrderStatus.class
+com/controlplane/order/service/OrderService.class

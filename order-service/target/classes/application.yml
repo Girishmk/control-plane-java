@@ -5,10 +5,12 @@ server:
 spring:
   application:
     name: order-service
+  config:
+    import: "optional:configserver:http://config-server:8888"
   cloud:
     config:
       uri: http://config-server:8888
-      fail-fast: true
+      fail-fast: ${CONFIG_FAIL_FAST:false}
       retry:
         max-attempts: 6
         initial-interval: 1500
@@ -143,3 +145,25 @@ logging:
     org.hibernate.SQL: WARN
   pattern:
     console: "%d{ISO8601} [%thread] %-5level %logger{36} traceId=%X{traceId} spanId=%X{spanId} - %msg%n"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    config:
+      uri: http://localhost:8888
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders
+  kafka:
+    bootstrap-servers: localhost:29092
+  data:
+    redis:
+      host: localhost
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

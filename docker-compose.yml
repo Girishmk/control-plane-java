@@ -123,6 +123,7 @@ services:
       REDIS_HOST: redis
       EUREKA_HOST: eureka
       JWT_SECRET: local-dev-secret
+      CONFIG_FAIL_FAST: "true"
     depends_on:
       eureka:
         condition: service_started
@@ -141,6 +142,7 @@ services:
       DB_USER: orders
       DB_PASSWORD: orders
       KAFKA_BOOTSTRAP: kafka:9092
+      CONFIG_FAIL_FAST: "true"
       REDIS_HOST: redis
       EUREKA_HOST: eureka
       APP_ENV: local
